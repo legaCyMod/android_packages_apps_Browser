@@ -26,6 +26,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Message;
+import android.os.SystemProperties;
 import android.preference.PreferenceManager;
 import android.provider.Browser;
 import android.provider.Settings;
@@ -356,9 +357,14 @@ public class BrowserSettings implements OnSharedPreferenceChangeListener,
     }
 
     public LayoutAlgorithm getLayoutAlgorithm() {
+        boolean useClassicWebview = "classic".equals(SystemProperties.get("persist.webview.provider"));
         LayoutAlgorithm layoutAlgorithm = LayoutAlgorithm.NORMAL;
         if (autofitPages()) {
-            layoutAlgorithm = LayoutAlgorithm.TEXT_AUTOSIZING;
+            if (useClassicWebview) {
+                layoutAlgorithm = LayoutAlgorithm.NARROW_COLUMNS;
+            } else {
+                layoutAlgorithm = LayoutAlgorithm.TEXT_AUTOSIZING;
+            }
         }
         if (isDebugEnabled()) {
             if (isSmallScreen()) {
@@ -367,7 +373,11 @@ public class BrowserSettings implements OnSharedPreferenceChangeListener,
                 if (isNormalLayout()) {
                     layoutAlgorithm = LayoutAlgorithm.NORMAL;
                 } else {
-                    layoutAlgorithm = LayoutAlgorithm.TEXT_AUTOSIZING;
+                    if (useClassicWebview) {
+                        layoutAlgorithm = LayoutAlgorithm.NARROW_COLUMNS;
+                    } else {
+                        layoutAlgorithm = LayoutAlgorithm.TEXT_AUTOSIZING;
+                    }
                 }
             }
         }
